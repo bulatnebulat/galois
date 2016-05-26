@@ -95,8 +95,8 @@ public class ReadCSV	 {
 	    }
 	
 	public void getAttrAndObjNames() {
-		 this.objNames = getSublist("obj_", binaryMatrix.size());
-	     this.attrNames = getSublist("attr_", binaryMatrix.get(0).size());
+		 this.objNames = getSublist("doc_", binaryMatrix.size());
+	     this.attrNames = getSublist("topic_", binaryMatrix.get(0).size());
 	}
 	
 	public void show(Table t) {

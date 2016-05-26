@@ -20,6 +20,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,17 +49,35 @@ import javax.swing.UnsupportedLookAndFeelException;
 import jcornflower.matrix.D2DUtil;
 import jcornflower.matrix.Double2D;
 import jcornflower.ui.JCSwing;
+
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
+import org.jgrapht.ext.DOTExporter;
+import org.jgrapht.ext.DOTImporter;
+import org.jgrapht.ext.EdgeNameProvider;
+import org.jgrapht.ext.EdgeProvider;
+import org.jgrapht.ext.VertexNameProvider;
+import org.jgrapht.ext.VertexProvider;
+import org.jgrapht.graph.DefaultEdge;
 
+import fr.lirmm.marel.gsh2.algorithm.Ares;
+import fr.lirmm.marel.gsh2.algorithm.Ceres;
+import fr.lirmm.marel.gsh2.core.IBinaryContext;
+import fr.lirmm.marel.gsh2.core.MyGSH;
+import fr.lirmm.marel.gsh2.io.DotWriter;
+import fr.lirmm.marel.gsh2.io.DotWriter.DisplayFormat;
+import fr.lirmm.marel.gsh2.io.MyCSVReader;
+import fr.lirmm.marel.gsh2.util.Chrono;
 import galois.ReadCSV;
+import javax.swing.ScrollPaneConstants;
 
 
 public class GSHBStart extends JFrame {
-
+	
+	public String curFile;
 	public ReadCSV csv; 
 	private static final long serialVersionUID = -2799099279899362125L;
     private ContextController contextController;
@@ -95,6 +119,9 @@ public class GSHBStart extends JFrame {
     private JMenuBar topJMenuBar;
     private JMenuItem visualgshJMenuItem;
     private JMenuItem xmlexportJMenuItem;
+    private JButton btnAres = new JButton("Ares");
+    private JScrollPane consoleJScrollPane;
+    private JTextArea actionsConsole;
 
     public GSHBStart() {
         this.contextController = new ContextController(this);
@@ -162,6 +189,7 @@ public class GSHBStart extends JFrame {
         this.importJMenuItem = new JMenuItem();
         this.xmlexportJMenuItem = new JMenuItem();
         this.importxmlJFileChooser.setDialogTitle("Select a xml file that contains a context");
+        this.importcsvJFileChooser.setDialogTitle("Select a csv file that contains a context");
         this.helpJDialog.setTitle("Help contents");
         this.helpJDialog.setName("helpJDialog");
         this.jTextArea1.setColumns(20);
@@ -317,48 +345,138 @@ public class GSHBStart extends JFrame {
         JButton btnPluton = new JButton("Pluton");
         btnPluton.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent evt) {
-        		if (contextJTable != null) {
+        		if (gshJMenu.isEnabled()) {
 					GSHBStart.this.visualgshJMenuItemActionPerformed(evt);
+				} else {
+					actionsConsole.setText(actionsConsole.getText() + "\nEmpty context!");
 				}
         	}
         });
         
         JButton btnCeres = new JButton("Ceres");
+        btnCeres.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent arg0) {
+        		if (gshJMenu.isEnabled()) {
+					try {
+						IBinaryContext bc = new MyCSVReader(new BufferedReader(new FileReader(curFile))).readBinaryContext();
+						Ceres cer = new Ceres(bc, new Chrono("chono"));
+						cer.exec();
+						/*cer.getResult();
+						String dotFileName = "1.dot";
+						int pos = curFile.lastIndexOf(".");
+						if (pos > 0) {
+							dotFileName = curFile.substring(0, pos) + ".dot";
+						}
+
+						BufferedWriter buff = new BufferedWriter(new FileWriter(new File(dotFileName)));
+						DotWriter dw = new DotWriter(buff, (MyGSH) cer.getResult(), bc, DisplayFormat.REDUCED, false);
+						dw.write();*/
+						JGraphApplet app = new JGraphApplet();
+		                app.setJGraph(new GSH((MyGSH) cer.getResult(), bc));
+		                app.run();
+				       /* VertexProvider<String> vertexProvider = new VertexProvider<String>();
+				        EdgeProvider<String, DefaultEdge> edgeProvider = new EdgeProvider<String, DefaultEdge>(); 
+						DOTImporter<String, DefaultEdge> di = new DOTImporter<String, DefaultEdge>(vertexProvider, edgeProvider);*/
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else {
+					actionsConsole.setText(actionsConsole.getText() + "\nEmpty context!");
+				}
+        	}
+        });              
         
-        JButton btnAres = new JButton("Ares");
+        JButton btnClear = new JButton("Clear");
+        btnClear.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent arg0) {
+        		actionsConsole.setText("");
+        	}
+        });
+        
+        consoleJScrollPane = new JScrollPane();
+        consoleJScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         GroupLayout layout = new GroupLayout(this.getContentPane());
         layout.setHorizontalGroup(
         	layout.createParallelGroup(Alignment.LEADING)
         		.addGroup(layout.createSequentialGroup()
         			.addContainerGap()
         			.addGroup(layout.createParallelGroup(Alignment.LEADING)
-        				.addComponent(contextJScrollPane, GroupLayout.DEFAULT_SIZE, 1004, Short.MAX_VALUE)
-        				.addGroup(Alignment.TRAILING, layout.createSequentialGroup()
+        				.addComponent(consoleJScrollPane, GroupLayout.DEFAULT_SIZE, 1030, Short.MAX_VALUE)
+        				.addComponent(contextJScrollPane, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 1030, Short.MAX_VALUE)
+        				.addGroup(layout.createSequentialGroup()
         					.addComponent(btnAres, GroupLayout.PREFERRED_SIZE, 92, GroupLayout.PREFERRED_SIZE)
         					.addPreferredGap(ComponentPlacement.UNRELATED)
         					.addComponent(btnCeres, GroupLayout.PREFERRED_SIZE, 83, GroupLayout.PREFERRED_SIZE)
         					.addPreferredGap(ComponentPlacement.UNRELATED)
         					.addComponent(btnPluton, GroupLayout.PREFERRED_SIZE, 78, GroupLayout.PREFERRED_SIZE)
-        					.addPreferredGap(ComponentPlacement.RELATED, 583, Short.MAX_VALUE)
+        					.addPreferredGap(ComponentPlacement.RELATED, 551, Short.MAX_VALUE)
+        					.addComponent(btnClear)
+        					.addPreferredGap(ComponentPlacement.RELATED)
         					.addComponent(btnBuild)
-        					.addGap(18)
+        					.addPreferredGap(ComponentPlacement.RELATED)
         					.addComponent(btnOpen)))
         			.addContainerGap())
         );
+        btnAres.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent arg0) {
+        		if (gshJMenu.isEnabled()) {
+					try {
+						IBinaryContext bc = new MyCSVReader(new BufferedReader(new FileReader(curFile))).readBinaryContext();
+						Ares ares = new Ares(bc);
+						ares.exec();
+						ares.getResult();
+						/*String dotFileName = "1.dot";
+						int pos = curFile.lastIndexOf(".");
+						if (pos > 0) {
+							dotFileName = curFile.substring(0, pos) + ".dot";
+						}
+
+						BufferedWriter buff = new BufferedWriter(new FileWriter(new File(dotFileName)));
+						DotWriter dw = new DotWriter(buff, (MyGSH) ares.getResult(), bc, DisplayFormat.REDUCED, false);
+						dw.write();*/
+						JGraphApplet app = new JGraphApplet();
+		                app.setJGraph(new GSH((MyGSH) ares.getResult(), bc));
+		                app.run();
+				       /* VertexProvider<String> vertexProvider = new VertexProvider<String>();
+				        EdgeProvider<String, DefaultEdge> edgeProvider = new EdgeProvider<String, DefaultEdge>(); 
+						DOTImporter<String, DefaultEdge> di = new DOTImporter<String, DefaultEdge>(vertexProvider, edgeProvider);*/
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else {
+					actionsConsole.setText(actionsConsole.getText() + "\nEmpty context!");
+				}
+        	}
+        });
         layout.setVerticalGroup(
         	layout.createParallelGroup(Alignment.LEADING)
         		.addGroup(layout.createSequentialGroup()
         			.addContainerGap()
-        			.addComponent(contextJScrollPane, GroupLayout.PREFERRED_SIZE, 670, GroupLayout.PREFERRED_SIZE)
-        			.addGap(18)
+        			.addComponent(contextJScrollPane, GroupLayout.DEFAULT_SIZE, 523, Short.MAX_VALUE)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(consoleJScrollPane, GroupLayout.PREFERRED_SIZE, 159, GroupLayout.PREFERRED_SIZE)
+        			.addPreferredGap(ComponentPlacement.RELATED)
         			.addGroup(layout.createParallelGroup(Alignment.BASELINE)
         				.addComponent(btnOpen)
-        				.addComponent(btnBuild)
         				.addComponent(btnAres)
         				.addComponent(btnPluton)
-        				.addComponent(btnCeres))
-        			.addContainerGap(23, Short.MAX_VALUE))
+        				.addComponent(btnCeres)
+        				.addComponent(btnBuild)
+        				.addComponent(btnClear))
+        			.addGap(23))
         );
+        
+        actionsConsole = new JTextArea();
+        actionsConsole.setEditable(false);
+        consoleJScrollPane.setViewportView(actionsConsole);
         this.getContentPane().setLayout(layout);
         this.pack();
     }
@@ -408,7 +526,7 @@ public class GSHBStart extends JFrame {
     }
     
     private void importOpenBtnActionPerformed(ActionEvent evt) {
-        csv = this.contextController.importFromCSV(csv);
+        csv = this.contextController.importFromCSV(csv, this);
     }
 
     public void initContextJTable(Double2D d2d) {

@@ -31,5 +31,6 @@
 	<classpathentry exported="true" kind="lib" path="C:/Users/bravk_000/Downloads/jgrapht-0.9.2/lib/jgraphx-2.0.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="D:/Programming/Java/Projects/graphlayout-1.2.1.jar/graphlayout-1.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="C:/Users/bravk_000/Downloads/jgraph-5.8.3.1.jar/jgraph-5.8.3.1.jar" sourcepath="C:/Users/bravk_000/Downloads/jgraph-5.8.3.1.jar/jgraph-5.8.3.1.jar"/>
+	<classpathentry kind="lib" path="D:/Programming/Java/Projects/Libraries/AOCPosetBuilder.jar" sourcepath="C:/Users/bravk_000/Downloads/AOCPosetBuilder_source_from_cfr"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

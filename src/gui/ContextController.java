@@ -89,13 +89,14 @@ public class ContextController {
         }
     }
     
-    public ReadCSV importFromCSV(ReadCSV csv) {
+    public ReadCSV importFromCSV(ReadCSV csv, GSHBStart cur) {
         try {
             FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV files", "csv");
             this.gui.getImportcsvJFileChooser().addChoosableFileFilter(filter);
             int ret = this.gui.getImportcsvJFileChooser().showDialog(null, "Open csv context file");
             if (ret == 0) {
                 File file = this.gui.getImportcsvJFileChooser().getSelectedFile();
+                cur.curFile = file.getPath();
                 csv = new ReadCSV(file.getPath());
 		        csv.read();
 		        return csv;
