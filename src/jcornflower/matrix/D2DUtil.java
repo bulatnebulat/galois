@@ -88,8 +88,8 @@ public class D2DUtil {
     }
 
     public static Double2D getRandomContext(int objSize, int attrSize, int relations) {
-        List<String> objects = D2DUtil.getSublist("obj_", objSize);
-        List<String> attributes = D2DUtil.getSublist("attr_", attrSize);
+        List<String> objects = D2DUtil.getSublist("doc_", objSize);
+        List<String> attributes = D2DUtil.getSublist("topic_", attrSize);
         int n = relations;
         double[][] arr = JCRandom.getMatrix(objects.size(), attributes.size(), n, 1.0);
         Double2D result = new Double2D(objects, attributes, arr);

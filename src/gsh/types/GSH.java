@@ -47,14 +47,14 @@ public class GSH {
 			Iterator<Integer> it2;
 			it2 = c.getReducedIntent().iterator();
 			while (it2.hasNext()) {
-				intents.add(String.valueOf(bc.getAttributeName(it2.next())));
+				intents.add("topic_" + Integer.parseInt(String.valueOf(bc.getAttributeName(it2.next())).replaceAll("[\\D]", "")));
 			}
 
 			it2 = c.getReducedExtent().iterator();
 			while (it2.hasNext()) {
-				extents.add(String.valueOf(bc.getObjectName(it2.next())));
+				extents.add("doc_" + Integer.parseInt(String.valueOf(bc.getObjectName(it2.next())).replaceAll("[\\D]", "")));
 			}
-			Concept con = new Concept(extents, intents, false, NamingConvention.eiSimple);
+			Concept con = new Concept(extents, intents, false, NamingConvention.html);
 			con.setLevel(c.getExtent().cardinality());
 			concepts.add(con);
 		}
@@ -73,25 +73,25 @@ public class GSH {
     			Iterator<Integer> it2;
     			it2 = c.getReducedIntent().iterator();
     			while (it2.hasNext()) {
-    				intents.add(String.valueOf(bc.getAttributeName(it2.next())));
+    				intents.add("topic_" + Integer.parseInt(String.valueOf(bc.getAttributeName(it2.next())).replaceAll("[\\D]", "")));
     			}
 
     			it2 = c.getReducedExtent().iterator();
     			while (it2.hasNext()) {
-    				extents.add(String.valueOf(bc.getObjectName(it2.next())));
+    				extents.add("doc_" + Integer.parseInt(String.valueOf(bc.getObjectName(it2.next())).replaceAll("[\\D]", "")));
     			}
     			it2 = child.getReducedIntent().iterator();
     			while (it2.hasNext()) {
-    				childIntents.add(String.valueOf(bc.getAttributeName(it2.next())));
+    				childIntents.add("topic_" + Integer.parseInt(String.valueOf(bc.getAttributeName(it2.next())).replaceAll("[\\D]", "")));
     			}
 
     			it2 = child.getReducedExtent().iterator();
     			while (it2.hasNext()) {
-    				childExtents.add(String.valueOf(bc.getObjectName(it2.next())));
+    				childExtents.add("doc_" + Integer.parseInt(String.valueOf(bc.getObjectName(it2.next())).replaceAll("[\\D]", "")));
     			}    
-    			Concept parentCon = new Concept(extents, intents, false, NamingConvention.eiSimple);
+    			Concept parentCon = new Concept(extents, intents, false, NamingConvention.html);
     			parentCon.setLevel(c.getExtent().cardinality());
-    			Concept childCon =  new Concept(childExtents, childIntents, false, NamingConvention.eiSimple);
+    			Concept childCon =  new Concept(childExtents, childIntents, false, NamingConvention.html);
     			childCon.setLevel(child.getExtent().cardinality());
                 edges.add(new Edge(parentCon, childCon));                
             }

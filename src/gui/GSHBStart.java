@@ -69,7 +69,7 @@ import fr.lirmm.marel.gsh2.core.IBinaryContext;
 import fr.lirmm.marel.gsh2.core.MyGSH;
 import fr.lirmm.marel.gsh2.io.DotWriter;
 import fr.lirmm.marel.gsh2.io.DotWriter.DisplayFormat;
-import fr.lirmm.marel.gsh2.io.MyCSVReader;
+import io.MyCSVReader;
 import fr.lirmm.marel.gsh2.util.Chrono;
 import galois.ReadCSV;
 import javax.swing.ScrollPaneConstants;
@@ -97,7 +97,6 @@ public class GSHBStart extends JFrame {
     private JLabel errorJLabel_rand;
     private JMenuItem exitJMenuItem;
     private JFileChooser exportToXmlJFileChooser;
-    private JMenu fileJMenu;
     private JDialog generateRandomContextJDialog;
     private JButton generateRandomSubmitJButton;
     private JMenu gshJMenu;
@@ -117,7 +116,6 @@ public class GSHBStart extends JFrame {
     private JLabel relationsJLabel;
     private JTextField relationsJTextField;
     private JMenuBar topJMenuBar;
-    private JMenuItem visualgshJMenuItem;
     private JMenuItem xmlexportJMenuItem;
     private JButton btnAres = new JButton("Ares");
     private JScrollPane consoleJScrollPane;
@@ -178,16 +176,8 @@ public class GSHBStart extends JFrame {
         this.contextJScrollPane = new JScrollPane();
         this.contextJTable = new JTable();
         this.topJMenuBar = new JMenuBar();
-        this.fileJMenu = new JMenu();
-        this.exitJMenuItem = new JMenuItem();
         this.gshJMenu = new JMenu();
-        this.visualgshJMenuItem = new JMenuItem();
         this.dotexportJMenuItem = new JMenuItem();
-        this.editJMenu = new JMenu();
-        this.insertContextJMenuItem = new JMenuItem();
-        this.randomJMenuItem = new JMenuItem();
-        this.importJMenuItem = new JMenuItem();
-        this.xmlexportJMenuItem = new JMenuItem();
         this.importxmlJFileChooser.setDialogTitle("Select a xml file that contains a context");
         this.importcsvJFileChooser.setDialogTitle("Select a csv file that contains a context");
         this.helpJDialog.setTitle("Help contents");
@@ -250,41 +240,12 @@ public class GSHBStart extends JFrame {
         this.setTitle("GSH Builder 1.0");
         this.setName("gallonautJFrame");
         this.contextJScrollPane.setViewportView(this.contextJTable);
-        this.fileJMenu.setText("File");
-        this.exitJMenuItem.setText("Exit");
-        this.exitJMenuItem.addActionListener(new ActionListener(){
-
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                GSHBStart.this.exitJMenuItemActionPerformed(evt);
-            }
-        });
-        this.fileJMenu.add(this.exitJMenuItem);
-        this.topJMenuBar.add(this.fileJMenu);
-        this.gshJMenu.setText("GSH");
-        this.gshJMenu.setEnabled(false);
-        this.visualgshJMenuItem.setAccelerator(KeyStroke.getKeyStroke(71, 2));
-        this.visualgshJMenuItem.setText(" Show GSH visual");
-        this.visualgshJMenuItem.addActionListener(new ActionListener(){
-
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                GSHBStart.this.visualgshJMenuItemActionPerformed(evt);
-            }
-        });
-        this.gshJMenu.add(this.visualgshJMenuItem);
-        this.dotexportJMenuItem.setAccelerator(KeyStroke.getKeyStroke(69, 2));
-        this.dotexportJMenuItem.setText("Export GSH to DOT file");
-        this.dotexportJMenuItem.addActionListener(new ActionListener(){
-
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                GSHBStart.this.dotexportJMenuItemActionPerformed(evt);
-            }
-        });
-        this.gshJMenu.add(this.dotexportJMenuItem);
-        this.topJMenuBar.add(this.gshJMenu);
-        this.editJMenu.setText("Context");
+        this.editJMenu = new JMenu();
+        this.insertContextJMenuItem = new JMenuItem();
+        this.randomJMenuItem = new JMenuItem();
+        this.importJMenuItem = new JMenuItem();
+        this.xmlexportJMenuItem = new JMenuItem();
+        this.editJMenu.setText("File");
         this.insertContextJMenuItem.setAccelerator(KeyStroke.getKeyStroke(78, 2));
         this.insertContextJMenuItem.setText("Create new context");
         this.insertContextJMenuItem.addActionListener(new ActionListener(){
@@ -305,7 +266,7 @@ public class GSHBStart extends JFrame {
         });
         this.editJMenu.add(this.randomJMenuItem);
         this.importJMenuItem.setAccelerator(KeyStroke.getKeyStroke(73, 2));
-        this.importJMenuItem.setText("Import from XML");
+        this.importJMenuItem.setText("Import from CSV");
         this.importJMenuItem.addActionListener(new ActionListener(){
 
             @Override
@@ -314,7 +275,7 @@ public class GSHBStart extends JFrame {
             }
         });
         this.editJMenu.add(this.importJMenuItem);
-        this.xmlexportJMenuItem.setText("Export to XML");
+        this.xmlexportJMenuItem.setText("Export to CSV");
         this.xmlexportJMenuItem.setEnabled(false);
         this.xmlexportJMenuItem.addActionListener(new ActionListener(){
 
@@ -325,6 +286,29 @@ public class GSHBStart extends JFrame {
         });
         this.editJMenu.add(this.xmlexportJMenuItem);
         this.topJMenuBar.add(this.editJMenu);
+        this.exitJMenuItem = new JMenuItem();
+        editJMenu.add(exitJMenuItem);
+        this.exitJMenuItem.setText("Exit");
+        this.exitJMenuItem.addActionListener(new ActionListener(){
+
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                GSHBStart.this.exitJMenuItemActionPerformed(evt);
+            }
+        });
+        this.gshJMenu.setText("GSH");
+        this.gshJMenu.setEnabled(false);
+        this.dotexportJMenuItem.setAccelerator(KeyStroke.getKeyStroke(69, 2));
+        this.dotexportJMenuItem.setText("Export GSH to DOT file");
+        this.dotexportJMenuItem.addActionListener(new ActionListener(){
+
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                GSHBStart.this.dotexportJMenuItemActionPerformed(evt);
+            }
+        });
+        this.gshJMenu.add(this.dotexportJMenuItem);
+        this.topJMenuBar.add(this.gshJMenu);
         this.setJMenuBar(this.topJMenuBar);
         
         JButton btnOpen = new JButton("Open");
@@ -359,6 +343,8 @@ public class GSHBStart extends JFrame {
         		if (gshJMenu.isEnabled()) {
 					try {
 						IBinaryContext bc = new MyCSVReader(new BufferedReader(new FileReader(curFile))).readBinaryContext();
+						long start, end, res;
+						start = System.nanoTime();
 						Ceres cer = new Ceres(bc, new Chrono("chono"));
 						cer.exec();
 						/*cer.getResult();
@@ -373,7 +359,10 @@ public class GSHBStart extends JFrame {
 						dw.write();*/
 						JGraphApplet app = new JGraphApplet();
 		                app.setJGraph(new GSH((MyGSH) cer.getResult(), bc));
+		                end = System.nanoTime();
+		                res = end - start;		                
 		                app.run();
+		                actionsConsole.setText(actionsConsole.getText() + "\nAlgorithm: Ceres\nObject amount:" +  bc.getObjectCount() + "\nAttributes amount:" + bc.getAttributeCount() + "\nTime:" + String.format("%,12d", res) + " ns" );
 				       /* VertexProvider<String> vertexProvider = new VertexProvider<String>();
 				        EdgeProvider<String, DefaultEdge> edgeProvider = new EdgeProvider<String, DefaultEdge>(); 
 						DOTImporter<String, DefaultEdge> di = new DOTImporter<String, DefaultEdge>(vertexProvider, edgeProvider);*/
@@ -426,6 +415,8 @@ public class GSHBStart extends JFrame {
         		if (gshJMenu.isEnabled()) {
 					try {
 						IBinaryContext bc = new MyCSVReader(new BufferedReader(new FileReader(curFile))).readBinaryContext();
+						long start, end, res;
+						start = System.nanoTime();
 						Ares ares = new Ares(bc);
 						ares.exec();
 						ares.getResult();
@@ -440,7 +431,10 @@ public class GSHBStart extends JFrame {
 						dw.write();*/
 						JGraphApplet app = new JGraphApplet();
 		                app.setJGraph(new GSH((MyGSH) ares.getResult(), bc));
+		                end = System.nanoTime();
+		                res = end - start;
 		                app.run();
+		                actionsConsole.setText(actionsConsole.getText() + "\nAlgorithm: Ares\nObject amount:" +  bc.getObjectCount() + "\nAttributes amount:" + bc.getAttributeCount() + "\nTime:" + String.format("%,12d", res) + " ns" );
 				       /* VertexProvider<String> vertexProvider = new VertexProvider<String>();
 				        EdgeProvider<String, DefaultEdge> edgeProvider = new EdgeProvider<String, DefaultEdge>(); 
 						DOTImporter<String, DefaultEdge> di = new DOTImporter<String, DefaultEdge>(vertexProvider, edgeProvider);*/
@@ -492,11 +486,16 @@ public class GSHBStart extends JFrame {
     private void visualgshJMenuItemActionPerformed(ActionEvent evt) {
         if (this.contextJTable instanceof ContextTable) {
             try {
+            	long start, end, res;
+            	start = System.nanoTime();
                 Double2D d2d = D2DUtil.getContextFromTable(this.contextJTable);
                 GSHBuilder gshf = new GSHBuilder(new Pluton());
                 GSH gsh = gshf.generate(d2d, false);
                 JGraphApplet app = new JGraphApplet();
                 app.setJGraph(gsh);
+                end = System.nanoTime();
+                res = end - start;
+                actionsConsole.setText(actionsConsole.getText() + "\nAlgorithm: Pluton\nObject amount:" +  d2d.getObjnames().size() + "\nAttributes amount:" + d2d.getAttrnames().size() + "\nTime:" + String.format("%,12d", res) + " ns" );
                 app.run();
             }
             catch (InterruptedException | ExecutionException ex) {
@@ -510,7 +509,7 @@ public class GSHBStart extends JFrame {
     }
 
     private void dotexportJMenuItemActionPerformed(ActionEvent evt) {
-        this.contextController.exportGSHToFile();
+        this.contextController.exportGSHToFile(curFile);        
     }
 
     private void insertContextJMenuItemActionPerformed(ActionEvent evt) {
@@ -613,5 +612,9 @@ public class GSHBStart extends JFrame {
 
     public JTable getContextJTable() {
         return this.contextJTable;
+    }
+    
+    public JTextArea getActionsConsole() {
+    	return this.actionsConsole;
     }
 }

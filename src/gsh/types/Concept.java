@@ -93,7 +93,7 @@ public class Concept {
         if (this.extents.size() > 0) {
             labels.add("<i>" + JCLists.join(this.extents, "<br>") + "</i>");
         }
-        String result = "<html>" + JCLists.join(labels, "<br><br>") + "</html>";
+        String result = "<html><b>" + JCLists.join(labels, "<br><br>") + "</b></html>";
         return result;
     }
 
@@ -149,5 +149,14 @@ public class Concept {
         $SWITCH_TABLE$gsh$types$NamingConvention = arrn;
         return $SWITCH_TABLE$gsh$types$NamingConvention;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(this.toString().equals(((Concept)obj).toString()) && this.level == ((Concept)obj).level) {
+        	return true;
+        }
+        return false;
+    }
+
 }
 

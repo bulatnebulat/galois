@@ -4,6 +4,13 @@
 package gui;
 
 import dot.CustomDotExporter;
+import fr.lirmm.marel.gsh2.algorithm.Ceres;
+import fr.lirmm.marel.gsh2.core.IBinaryContext;
+import fr.lirmm.marel.gsh2.core.MyGSH;
+import fr.lirmm.marel.gsh2.io.DotWriter;
+import fr.lirmm.marel.gsh2.io.DotWriter.DisplayFormat;
+import io.MyCSVReader;
+import fr.lirmm.marel.gsh2.util.Chrono;
 import galois.ReadCSV;
 import gui.GSHBStart;
 import gsh.GSHBuilder;
@@ -13,7 +20,11 @@ import gsh.types.GSH;
 import gui.ContextTable;
 import gui.JGraphApplet;
 import java.awt.Component;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
@@ -51,19 +62,47 @@ public class ContextController {
         }
     }
 
-    public void exportGSHToFile() {
+    public void exportGSHToFile(String curFile) {
         JTable contextJTable = this.gui.getContextJTable();
         try {
             if (contextJTable instanceof ContextTable) {
-                GSH gsh = this.getGshFromContextTable(contextJTable);
+            	IBinaryContext bc = new MyCSVReader(new BufferedReader(new FileReader(curFile))).readBinaryContext();
+				long start, end, res;
+				start = System.nanoTime();
+				Ceres cer = new Ceres(bc, new Chrono("chono"));
+				cer.exec();
+				//cer.getResult();
+				/*String dotFileName = "1.dot";
+				int pos = curFile.lastIndexOf(".");
+				if (pos > 0) {
+					dotFileName = curFile.substring(0, pos) + ".dot";
+				}*/
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("dot files", "dot");
+                File saveas = JCSwing.getSaveAsFile(this.gui, filter);
+				if (saveas.exists()) {
+					BufferedWriter buff = new BufferedWriter(new FileWriter(saveas));
+					DotWriter dw = new DotWriter(buff, (MyGSH) cer.getResult(), bc, DisplayFormat.REDUCED, false);
+					dw.write();
+					this.gui.getActionsConsole().setText(this.gui.getActionsConsole().getText() + "\nSuccessfully imported to " + saveas.getPath());
+				} else {
+					saveas.createNewFile();
+					BufferedWriter buff = new BufferedWriter(new FileWriter(saveas));
+					DotWriter dw = new DotWriter(buff, (MyGSH) cer.getResult(), bc, DisplayFormat.REDUCED, false);
+					dw.write();
+					this.gui.getActionsConsole().setText(this.gui.getActionsConsole().getText() + "\nSuccessfully imported to " + saveas.getPath());
+				}
+                /*GSH gsh = this.getGshFromContextTable(contextJTable);
                 FileNameExtensionFilter filter = new FileNameExtensionFilter("dot files", "dot");
                 File saveas = JCSwing.getSaveAsFile(this.gui, filter);
                 ResourceBundle bundle = ResourceBundle.getBundle("dot.dot");
-                CustomDotExporter.export(saveas, bundle, gsh);
+                CustomDotExporter.export(saveas, bundle, gsh);*/
             }
         }
         catch (IOException | InterruptedException | ExecutionException ex) {
             Logger.getLogger(GSHBStart.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        catch (Exception ex) {
+        	Logger.getLogger(GSHBStart.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

@@ -3,13 +3,17 @@
  */
 package io;
 
-import core.IBinaryContext;
-import core.IMySet;
-import core.MyBinaryContext;
-import core.MySetWrapper;
+
 import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import org.eclipse.core.internal.runtime.DataArea;
+
+import fr.lirmm.marel.gsh2.core.IBinaryContext;
+import fr.lirmm.marel.gsh2.core.IMySet;
+import fr.lirmm.marel.gsh2.core.MyBinaryContext;
+import fr.lirmm.marel.gsh2.core.MySetWrapper;
 
 public class MyCSVReader {
     BufferedReader buff = null;
@@ -26,13 +30,14 @@ public class MyCSVReader {
         while (dataRow != null) {
             String[] dataArray = dataRow.split(",");
             if (dataArray.length == 0 || dataArray[0].equals("%")) continue;
-            if (dataArray.length > 1) {
+            if (dataArray.length > 1 && !dataArray[0].equals("Topic1") && !dataArray[0].equals("Topic0")) {
                 if (dataArray.length > nbAttributes) {
-                    nbAttributes = dataArray.length;
+                    nbAttributes = dataArray.length - 1;
                 }
-                MySetWrapper bs = new MySetWrapper(nbAttributes);
+                MySetWrapper bs = new MySetWrapper(nbAttributes-1);
                 int numCol = 0;
-                String[] arrstring = dataArray;
+                String[] arrstring = new String[dataArray.length - 1];
+                System.arraycopy(dataArray, 1, arrstring, 0, dataArray.length - 1);                
                 int n = arrstring.length;
                 int n2 = 0;
                 while (n2 < n) {
