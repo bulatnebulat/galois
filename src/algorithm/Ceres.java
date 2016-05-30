@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0_114.
- */
 package algorithm;
 
 import java.util.ArrayList;
@@ -8,14 +5,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
-import algorithm.AbstractAlgorithm;
-import core.IBinaryContext;
-import core.IMySet;
-import core.MyConcept;
-import core.MyConceptSet;
-import core.MyGSH;
-import core.MySetWrapper;
-import util.Chrono;
+import fr.lirmm.marel.gsh2.core.IBinaryContext;
+import fr.lirmm.marel.gsh2.core.IMySet;
+import fr.lirmm.marel.gsh2.core.MyConcept;
+import fr.lirmm.marel.gsh2.core.MyConceptSet;
+import fr.lirmm.marel.gsh2.core.MyGSH;
+import fr.lirmm.marel.gsh2.core.MySetWrapper;
+import fr.lirmm.marel.gsh2.util.Chrono;
+
 
 public class Ceres
 extends AbstractAlgorithm {

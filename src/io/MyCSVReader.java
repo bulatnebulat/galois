@@ -32,12 +32,20 @@ public class MyCSVReader {
             if (dataArray.length == 0 || dataArray[0].equals("%")) continue;
             if (dataArray.length > 1 && !dataArray[0].equals("Topic1") && !dataArray[0].equals("Topic0")) {
                 if (dataArray.length > nbAttributes) {
-                    nbAttributes = dataArray.length - 1;
+                	if(dataArray[0].startsWith("doc")) {
+                		 nbAttributes = dataArray.length - 1;
+                	} else {
+                		nbAttributes = dataArray.length;
+                	}                	
                 }
-                MySetWrapper bs = new MySetWrapper(nbAttributes-1);
+                MySetWrapper bs = new MySetWrapper(nbAttributes);
                 int numCol = 0;
-                String[] arrstring = new String[dataArray.length - 1];
-                System.arraycopy(dataArray, 1, arrstring, 0, dataArray.length - 1);                
+                String[] arrstring = new String[nbAttributes];
+                if (dataArray[0].startsWith("doc")) {
+                	System.arraycopy(dataArray, 1, arrstring, 0, dataArray.length - 1);       
+                } else {
+                	System.arraycopy(dataArray, 0, arrstring, 0, dataArray.length);  
+                }
                 int n = arrstring.length;
                 int n2 = 0;
                 while (n2 < n) {
@@ -54,6 +62,7 @@ public class MyCSVReader {
                 }
                 rows.add(bs);
             }
+            
             dataRow = this.buff.readLine();
         }
         binRel = new MyBinaryContext(rows, this.transpose(rows, nbAttributes), "");

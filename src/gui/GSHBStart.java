@@ -345,7 +345,7 @@ public class GSHBStart extends JFrame {
 						IBinaryContext bc = new MyCSVReader(new BufferedReader(new FileReader(curFile))).readBinaryContext();
 						long start, end, res;
 						start = System.nanoTime();
-						Ceres cer = new Ceres(bc, new Chrono("chono"));
+						Ceres cer = new Ceres(bc);
 						cer.exec();
 						/*cer.getResult();
 						String dotFileName = "1.dot";
