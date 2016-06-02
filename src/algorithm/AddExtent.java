@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0_114.
- */
 package algorithm;
 
 import java.util.ArrayList;

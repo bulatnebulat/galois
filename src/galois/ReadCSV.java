@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
+import gsh.algorithm.pluton.SetType;
 import jcornflower.matrix.D2DUtil;
 
 /*import gsh.types.Edge;
@@ -24,8 +25,11 @@ public class ReadCSV	 {
 	private List<Concept> topicConcepts;
 	private List<Concept> docConcepts;
 	private List<Concept> L;
+	private List<Edge> E;
 	private List<String> objNames;	
 	private List<String> attrNames;
+	public boolean docConExtracted = false; 
+	public boolean topicConExtracted = false; 
 	
 	public ReadCSV(String path) {
 		this.path = path;
@@ -63,6 +67,13 @@ public class ReadCSV	 {
 		return attrNames;
 	}
 
+	public List<Concept> getL() {
+		return L;
+	}
+	
+	public List<Edge> getEdges() {
+		return E;
+	}
 	
 	public void read() {
 		BufferedReader br = null;
@@ -142,6 +153,7 @@ public class ReadCSV	 {
 				docConcepts.get(i).addOriginObj(i);
 				bufer.clear();
 			}
+			docConExtracted = true;
 		} else {
 			topicConcepts = new ArrayList<Concept>();
 			List<Integer> bufer = new ArrayList<Integer>();
@@ -159,6 +171,7 @@ public class ReadCSV	 {
 				topicConcepts.get(i).addOriginAttr(i);
 				bufer.clear();
 			}
+			topicConExtracted = true;
 		}
 	}
 	
@@ -197,6 +210,7 @@ public class ReadCSV	 {
 		for(int i = 0; i < topicConcepts.size(); i++) {	
 			if(hs.containsKey(topicConcepts.get(i).getObj())) {
 				Concept c = hs.get(topicConcepts.get(i).getObj());
+				c.getOriginAttr().addAll(topicConcepts.get(i).getOriginAttr());
 				c.getOriginObj().addAll(topicConcepts.get(i).getOriginObj());
 				hs.put(topicConcepts.get(i).getObj(), c);
 			}
@@ -338,6 +352,92 @@ public class ReadCSV	 {
 			}
 		}
 		return E;
+	}
+	
+	public List<Concept> sortDecreasingExtent(List<Concept> L) {
+		boolean swapped = true;
+	    int j = 0;
+	    Concept tmp;
+	    while (swapped) {
+	        swapped = false;
+	        j++;
+	        for (int i = 0; i < L.size() - j; i++) {
+	            if (L.get(i).getObj().size() < L.get(i+1).getObj().size()) {
+	                tmp = L.get(i);
+	                L.set(i, L.get(i+1)) ;
+	                L.set(i + 1, tmp);
+	                swapped = true;
+	            }
+	        }
+	    }
+	    setLevels(L);
+	    return L;
+	}
+	
+	public List<Concept> setLevels(List<Concept> L) {
+		int maxLevel = L.get(0).getObj().size();
+		int minLevel = L.get(L.size() - 1).getObj().size();
+		for(int k = 0; k < L.size(); k++) {
+			L.get(k).setLevel(L.get(k).getObj().size());
+		}
+		return L;
+	}
+	
+	public List<Integer> getMilestones(List<Concept> L) {
+		List<Integer> m = new ArrayList<Integer>();
+		for (int i = 0; i < L.size() - 1; i++) {
+			if (L.get(i).getObj().size() != L.get(i+1).getObj().size()) {
+				m.add(i);
+			}
+		}
+		return m;
+	}
+	
+	public boolean compareContexts(Concept child, Concept parent) {
+		boolean doEdge = false;
+		if (parent.getObj().containsAll(child.getObj())) {
+            return true;
+        }
+		return doEdge;
+	}
+	
+	public boolean isEdgeTransitive(Concept child, Concept parent, List<Edge> E) {
+		List<Concept> parents = new ArrayList<Concept>();
+		List<Concept> children = new ArrayList<Concept>();
+		for(int p = 0; p < E.size(); p++) {
+			if (E.get(p).getChild().equals(child)) {
+				for(int i = 0; i < E.size(); i++) {
+					if(E.get(i).getChild().equals(E.get(p).getParent()) && E.get(i).getParent().equals(parent)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	public void makeGraph() {
+		List<Concept> sortedCons = sortDecreasingExtent(L);
+		E = new ArrayList<Edge>();
+		List<Integer> m = getMilestones(sortedCons);
+		int startIndex = 0;
+		int endIndex = m.get(0);
+		for(int k = 0; k < m.size(); k++) {
+			int poof = (k < m.size() - 1)?m.get(k + 1) + 1: sortedCons.size();
+			for(int j = m.get(k) + 1; j < poof; j++) {
+				for(int i = endIndex; i >= 0; i--) {
+					
+					if(compareContexts(sortedCons.get(j), sortedCons.get(i)) && !isEdgeTransitive(sortedCons.get(j), sortedCons.get(i), E)) {
+						E.add(new Edge(sortedCons.get(j), sortedCons.get(i)));
+					}
+					
+				}
+			}
+			endIndex = (k < m.size() - 1)?m.get(k + 1): sortedCons.size(); 
+		}
+		
+		
+		
 	}
 
 }

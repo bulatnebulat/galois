@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,12 +72,18 @@ import fr.lirmm.marel.gsh2.io.DotWriter;
 import fr.lirmm.marel.gsh2.io.DotWriter.DisplayFormat;
 import io.MyCSVReader;
 import fr.lirmm.marel.gsh2.util.Chrono;
+import galois.DocThread;
+import galois.Edge;
 import galois.ReadCSV;
+import galois.TopicThread;
+
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingWorker;
 
 
 public class GSHBStart extends JFrame {
 	
+	public boolean isDone = false;
 	public String curFile;
 	public ReadCSV csv; 
 	private static final long serialVersionUID = -2799099279899362125L;
@@ -324,7 +331,38 @@ public class GSHBStart extends JFrame {
         	}
         });
         
-        JButton btnBuild = new JButton("Build");
+        JButton btnRa = new JButton("Ra");
+        btnRa.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent arg0) {
+				if (gshJMenu.isEnabled()) {
+					csv = new ReadCSV(curFile);
+			        csv.read();
+					long start, end, res;
+					start = System.nanoTime();
+					TopicThread T1 = new TopicThread(csv, "Thread-1");
+					T1.start();
+
+					DocThread T2 = new DocThread(csv, "Thread-2");
+					;
+					T2.start();
+
+					while (!csv.docConExtracted || !csv.topicConExtracted) {
+
+					}
+					if (csv.docConExtracted && csv.topicConExtracted) {
+						csv.deleteEqual();
+						csv.makeGraph();
+						end = System.nanoTime();
+						res = end - start;
+						JGraphApplet app = new JGraphApplet();
+						app.setJGraph(csv);
+						app.run();
+						actionsConsole.setText(actionsConsole.getText() + "\nAlgorithm: Ra\nObject amount:" +  csv.getBinaryMatrix().size() + "\nAttributes amount:" + csv.getBinaryMatrix().get(0).size() + "\nTime:" + String.format("%,12d", res) + " ns" );
+					}
+					
+				}
+			}
+        });
         
         JButton btnPluton = new JButton("Pluton");
         btnPluton.addActionListener(new ActionListener() {
@@ -399,16 +437,33 @@ public class GSHBStart extends JFrame {
         				.addGroup(layout.createSequentialGroup()
         					.addComponent(btnAres, GroupLayout.PREFERRED_SIZE, 92, GroupLayout.PREFERRED_SIZE)
         					.addPreferredGap(ComponentPlacement.UNRELATED)
-        					.addComponent(btnCeres, GroupLayout.PREFERRED_SIZE, 83, GroupLayout.PREFERRED_SIZE)
+        					.addComponent(btnCeres, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
+        					.addGap(12)
+        					.addComponent(btnPluton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
         					.addPreferredGap(ComponentPlacement.UNRELATED)
-        					.addComponent(btnPluton, GroupLayout.PREFERRED_SIZE, 78, GroupLayout.PREFERRED_SIZE)
-        					.addPreferredGap(ComponentPlacement.RELATED, 551, Short.MAX_VALUE)
+        					.addComponent(btnRa, GroupLayout.PREFERRED_SIZE, 83, GroupLayout.PREFERRED_SIZE)
+        					.addPreferredGap(ComponentPlacement.RELATED, 500, Short.MAX_VALUE)
         					.addComponent(btnClear)
-        					.addPreferredGap(ComponentPlacement.RELATED)
-        					.addComponent(btnBuild)
-        					.addPreferredGap(ComponentPlacement.RELATED)
+        					.addGap(18)
         					.addComponent(btnOpen)))
         			.addContainerGap())
+        );
+        layout.setVerticalGroup(
+        	layout.createParallelGroup(Alignment.LEADING)
+        		.addGroup(layout.createSequentialGroup()
+        			.addContainerGap()
+        			.addComponent(contextJScrollPane, GroupLayout.DEFAULT_SIZE, 523, Short.MAX_VALUE)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(consoleJScrollPane, GroupLayout.PREFERRED_SIZE, 159, GroupLayout.PREFERRED_SIZE)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(btnOpen)
+        				.addComponent(btnAres)
+        				.addComponent(btnCeres)
+        				.addComponent(btnClear)
+        				.addComponent(btnPluton)
+        				.addComponent(btnRa))
+        			.addGap(23))
         );
         btnAres.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent arg0) {
@@ -450,23 +505,6 @@ public class GSHBStart extends JFrame {
 				}
         	}
         });
-        layout.setVerticalGroup(
-        	layout.createParallelGroup(Alignment.LEADING)
-        		.addGroup(layout.createSequentialGroup()
-        			.addContainerGap()
-        			.addComponent(contextJScrollPane, GroupLayout.DEFAULT_SIZE, 523, Short.MAX_VALUE)
-        			.addPreferredGap(ComponentPlacement.RELATED)
-        			.addComponent(consoleJScrollPane, GroupLayout.PREFERRED_SIZE, 159, GroupLayout.PREFERRED_SIZE)
-        			.addPreferredGap(ComponentPlacement.RELATED)
-        			.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-        				.addComponent(btnOpen)
-        				.addComponent(btnAres)
-        				.addComponent(btnPluton)
-        				.addComponent(btnCeres)
-        				.addComponent(btnBuild)
-        				.addComponent(btnClear))
-        			.addGap(23))
-        );
         
         actionsConsole = new JTextArea();
         actionsConsole.setEditable(false);
@@ -521,7 +559,8 @@ public class GSHBStart extends JFrame {
     }
 
     private void importJMenuItemActionPerformed(ActionEvent evt) {
-        this.contextController.importFromXML();
+        csv = this.contextController.importFromCSV(csv, this);
+        initContextJTable(csv);
     }
     
     private void importOpenBtnActionPerformed(ActionEvent evt) {
@@ -541,7 +580,7 @@ public class GSHBStart extends JFrame {
     }
 
     private void xmlexportJMenuItemActionPerformed(ActionEvent evt) {
-        this.contextController.exportContextToXML();
+        //this.contextController.exportContextToXML();
     }
 
     private void allowExportAndGSH(boolean enabled) {

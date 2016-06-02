@@ -1,10 +1,7 @@
-/*
- * Decompiled with CFR 0_114.
- */
 package io;
 
-import fr.lirmm.marel.gsh2.core.IBinaryContext;
-import fr.lirmm.marel.gsh2.core.MyBinaryContext;
+import core.IBinaryContext;
+import core.MyBinaryContext;
 import java.io.BufferedReader;
 import java.io.IOException;
 

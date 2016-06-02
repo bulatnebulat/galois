@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0_114.
- */
 package gui;
 
 import gsh.types.Concept;
@@ -42,6 +39,8 @@ import com.mxgraph.util.mxResources;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
 
+import galois.ReadCSV;
+
 public class JGraphApplet
 extends JApplet {
     private static final long serialVersionUID = 3256444702936019250L;
@@ -51,6 +50,7 @@ extends JApplet {
     private mxGraphOutline graphOutline;
     private List<Object> listOfPoints;
     private List<Concept> listOfConcepts;
+    private List<galois.Concept> listOfConcepts2;
 
     public void setJGraph(GSH gsh) {
         //this.jgAdapter = new mxGraphModel<String, DefaultEdge>(ToGraph.fromGSH(gsh));
@@ -101,6 +101,69 @@ extends JApplet {
         }
         for (Edge p : gsh.getEdges()) {
         	jgraph.insertEdge(parent, null, "", listOfPoints.get(listOfConcepts.indexOf(p.getParent())), listOfPoints.get(listOfConcepts.indexOf(p.getChild())));           
+        }
+        } finally {
+        	jgraph.getModel().endUpdate();
+        }      
+        graphComponent = new mxGraphComponent(jgraph); 
+        graphComponent.setConnectable(false);
+        graphComponent.getViewport().setOpaque(true);
+        graphComponent.getViewport().setBackground(Color.WHITE);
+        
+        graphOutline = new mxGraphOutline(graphComponent);
+        this.getContentPane().add(graphComponent);
+        installZoomListener(); 
+    }
+    
+    public void setJGraph(ReadCSV gsh) {
+        //this.jgAdapter = new mxGraphModel<String, DefaultEdge>(ToGraph.fromGSH(gsh));
+        mxGraph jgraph = new mxGraph();
+        
+        jgraph.setCellsEditable(false);
+        jgraph.setAllowDanglingEdges(false);
+        jgraph.setCellsDeletable(false);
+        jgraph.setCellsDisconnectable(false);
+        jgraph.setDropEnabled(false);
+        jgraph.setConnectableEdges(false);
+        jgraph.setCellsResizable(false);
+        jgraph.setCellsBendable(false);
+        jgraph.setCellsCloneable(false);
+        jgraph.setHtmlLabels(true);
+       
+        Object parent = jgraph.getDefaultParent();
+
+		jgraph.getModel().beginUpdate();
+        this.adjustDisplaySettings(jgraph);
+        try {
+        this.resize(DEFAULT_SIZE);
+        HashMap<galois.Concept, Integer> levels = new HashMap<galois.Concept, Integer>();
+        for (galois.Concept p : gsh.getL()) {
+            levels.put(p, p.getLevel());
+        }
+        int ymax = 0;
+        HashMap<Integer, Integer> col = new HashMap<Integer, Integer>();
+        for (galois.Concept p2 : levels.keySet()) {
+            int level = (Integer)levels.get(p2);
+            int value = !col.containsKey(level) ? 1 : (Integer)col.get(level) + 1;
+            col.put(level, value);
+            if (level <= ymax) continue;
+            ymax = level;
+        }
+        HashMap<Integer, Integer> counters = new HashMap<Integer, Integer>(col);
+        listOfPoints = new ArrayList<Object>();
+        listOfConcepts2 = new ArrayList<galois.Concept>();
+        for (galois.Concept p3 : levels.keySet()) {
+            int level = (Integer)levels.get(p3);
+            int onlevel = (Integer)col.get(level);
+            int x = JGraphApplet.DEFAULT_SIZE.width / (onlevel + 1) * (Integer)counters.get(level) - 70;
+            int y = JGraphApplet.DEFAULT_SIZE.height / (ymax + 1) * (ymax - level + 1);
+            counters.put(level, (Integer)counters.get(level) - 1);
+            //this.positionAndResize(p3.toString(), x, y, p3.getWidth() * 8 + 15, p3.getHeight() * 30 + 10);
+            listOfPoints.add(jgraph.insertVertex(parent, null, p3.toString(gsh), x, y, p3.getWidth(gsh) * 8 + 15, p3.getHeight() * 30 + 10, "fillColor=#C0C0C0"));
+            listOfConcepts2.add(p3);
+        }
+        for (galois.Edge p : gsh.getEdges()) {
+        	jgraph.insertEdge(parent, null, "", listOfPoints.get(listOfConcepts2.indexOf(p.getParent())), listOfPoints.get(listOfConcepts2.indexOf(p.getChild())));           
         }
         } finally {
         	jgraph.getModel().endUpdate();

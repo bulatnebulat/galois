@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0_114.
- */
 package gsh;
 
 import gsh.algorithm.GSHAlgorithm;

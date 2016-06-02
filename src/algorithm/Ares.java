@@ -1,19 +1,15 @@
-/*
- * Decompiled with CFR 0_114.
- */
 package algorithm;
 
 import java.util.Iterator;
 
-import algorithm.AbstractAlgorithm;
-import algorithm.Aores;
-import core.IBinaryContext;
-import core.IMySet;
-import core.MyConcept;
-import core.MyConceptSet;
-import core.MyGSH;
-import core.MySetWrapper;
-import util.Chrono;
+import fr.lirmm.marel.gsh2.core.IBinaryContext;
+import fr.lirmm.marel.gsh2.core.IMySet;
+import fr.lirmm.marel.gsh2.core.MyConcept;
+import fr.lirmm.marel.gsh2.core.MyConceptSet;
+import fr.lirmm.marel.gsh2.core.MyGSH;
+import fr.lirmm.marel.gsh2.core.MySetWrapper;
+import fr.lirmm.marel.gsh2.util.Chrono;
+
 
 public class Ares
 extends AbstractAlgorithm {

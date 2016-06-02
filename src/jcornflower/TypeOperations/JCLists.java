@@ -1,6 +1,4 @@
-/*
- * Decompiled with CFR 0_114.
- */
+
 package jcornflower.TypeOperations;
 
 import java.io.PrintStream;

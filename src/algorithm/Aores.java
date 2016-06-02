@@ -1,19 +1,17 @@
-/*
- * Decompiled with CFR 0_114.
- */
 package algorithm;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import algorithm.AbstractAlgorithm;
-import core.IMySet;
-import core.MyBasicIterator;
-import core.MyConcept;
-import core.MyConceptSet;
-import core.MyGSH;
-import core.MySetWrapper;
+import fr.lirmm.marel.gsh2.core.IMySet;
+import fr.lirmm.marel.gsh2.core.MyBasicIterator;
+import fr.lirmm.marel.gsh2.core.MyConcept;
+import fr.lirmm.marel.gsh2.core.MyConceptSet;
+import fr.lirmm.marel.gsh2.core.MyGSH;
+import fr.lirmm.marel.gsh2.core.MySetWrapper;
+
+
 
 public class Aores
 extends AbstractAlgorithm {
@@ -197,7 +195,7 @@ extends AbstractAlgorithm {
             IMySet exts = (IMySet)ext.clone();
             top = new MyConcept(ext, new MySetWrapper(0), exts, new MySetWrapper(0));
             MyConceptSet rootConcepts = new MyConceptSet();
-            Iterator<MyConcept> i = this.gsh.getBasicIterator();
+            Iterator<MyConcept> i = (Iterator<MyConcept>) this.gsh.getBasicIterator();
             while (i.hasNext()) {
                 MyConcept concept = i.next();
                 if (!concept.getUpperCover().isEmpty()) continue;

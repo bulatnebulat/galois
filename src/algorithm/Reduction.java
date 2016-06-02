@@ -1,6 +1,4 @@
-/*
- * Decompiled with CFR 0_114.
- */
+
 package algorithm;
 
 import java.io.File;

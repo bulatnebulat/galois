@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0_114.
- */
 package io;
 
 import fr.lirmm.marel.gsh2.core.IBinaryContext;

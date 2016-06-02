@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0_114.
- */
 package gui;
 
 import dot.CustomDotExporter;
@@ -138,7 +135,8 @@ public class ContextController {
                 cur.curFile = file.getPath();
                 csv = new ReadCSV(file.getPath());
 		        csv.read();
-		        return csv;
+		        this.gui.getImportcsvJFileChooser().resetChoosableFileFilters();
+		        return csv;		        
             }
         }
         catch (Exception ex) {

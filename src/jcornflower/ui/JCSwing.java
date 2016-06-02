@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0_114.
- */
 package jcornflower.ui;
 
 import java.awt.Component;

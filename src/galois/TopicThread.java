@@ -1,9 +1,11 @@
 package galois;
 
+
 public class TopicThread extends Thread {
 	   private Thread t;
 	   private String threadName;
 	   private ReadCSV csv;
+	   
 	   
 	   public TopicThread(ReadCSV csv, String name){
 		   this.csv = csv;
@@ -18,7 +20,7 @@ public class TopicThread extends Thread {
 	            Thread.sleep(50);
 	     } catch (InterruptedException e) {
 	         System.out.println("Thread " +  threadName + " interrupted.");
-	     }
+	     } 
 	     System.out.println("Thread " +  threadName + " exiting.");
 	   }
 	   
